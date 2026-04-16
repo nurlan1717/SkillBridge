@@ -120,7 +120,7 @@ export default function AdminPage() {
     setError(null);
 
     try {
-      const response = await skillsService.list(user.token);
+      const response = await skillsService.list(user?.token);
       setSkills(response);
       if (response.length > 0 && !response.find((skill) => String(skill.id) === selectedSkillId)) {
         setSelectedSkillId(String(response[0].id));
