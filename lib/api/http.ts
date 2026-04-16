@@ -46,7 +46,24 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     return {} as T;
   }
 
-  return (await response.json()) as T;
+  const raw = await response.text();
+  if (!raw) {
+    return {} as T;
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  const expectsJson = contentType.includes("application/json");
+
+  if (expectsJson) {
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      // Some endpoints claim JSON but return plain text; allow text fallback.
+      return raw as T;
+    }
+  }
+
+  return raw as T;
 }
 
 export const api = {

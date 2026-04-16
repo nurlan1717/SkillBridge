@@ -21,8 +21,12 @@ export const endpoints = {
   assessments: {
     analyze: `${API_PREFIX}/assessments/analyze`,
     roadmap: (skillId: string) => `${API_PREFIX}/assessments/roadmap/${skillId}`,
+    testsBySkill: (skillId: string) => `${API_PREFIX}/skills/${skillId}/tests`,
     mine: `${API_PREFIX}/assessments/me`,
     skillWallet: `${API_PREFIX}/assessments/me/skill-wallet`,
+  },
+  roadmap: {
+    generate: "/api/roadmap",
   },
   tasks: {
     bySkill: (skillId: string) => `${API_PREFIX}/tasks/skill/${skillId}`,

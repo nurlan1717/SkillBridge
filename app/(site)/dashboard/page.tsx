@@ -57,7 +57,7 @@ function getRoleActions(role: string | null | undefined) {
 
 function UserDashboard() {
   const { user } = useAuth();
-  const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(false);
+  const [isSkillPanelOpen, setIsSkillPanelOpen] = useState(true);
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [isSkillsLoading, setIsSkillsLoading] = useState(false);
   const [skillsError, setSkillsError] = useState<string | null>(null);
@@ -149,6 +149,28 @@ function UserDashboard() {
         onAnalyzed={() => setIsSkillPanelOpen(true)}
       />
 
+      <section className="reveal mt-8 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 md:p-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsSkillPanelOpen((current) => !current)}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--bg)] px-5 py-2.5 text-sm font-semibold transition hover:border-[var(--accent)]"
+          >
+            {isSkillPanelOpen ? "Hide choose skill" : "Choose skill add"}
+          </button>
+
+          <Link
+            href="/verify-skill"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--accent-text)]"
+          >
+            Verify to skill
+          </Link>
+        </div>
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          This button is always available. You can add or verify skills even if you did not run CV analyze.
+        </p>
+      </section>
+
       {isSkillPanelOpen ? (
         <section className="reveal mt-8 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 md:p-8">
           <div className="mb-4">
@@ -192,19 +214,27 @@ function UserDashboard() {
                   <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     {skill.category} • {skill.difficulty}
                   </p>
-                  <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
-                    {addingSkillId === String(skill.id) ? (
-                      <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                    ) : addedSkillIds.includes(String(skill.id)) ? (
-                      <Check className="h-3.5 w-3.5" />
-                    ) : (
-                      <Plus className="h-3.5 w-3.5" />
-                    )}
-                    {addingSkillId === String(skill.id)
-                      ? "Adding..."
-                      : addedSkillIds.includes(String(skill.id))
-                        ? "Added"
-                        : "Add skill"}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      {addingSkillId === String(skill.id) ? (
+                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                      ) : addedSkillIds.includes(String(skill.id)) ? (
+                        <Check className="h-3.5 w-3.5" />
+                      ) : (
+                        <Plus className="h-3.5 w-3.5" />
+                      )}
+                      {addingSkillId === String(skill.id)
+                        ? "Adding..."
+                        : addedSkillIds.includes(String(skill.id))
+                          ? "Added"
+                          : "Add skill"}
+                    </div>
+                    <Link
+                      href={`/verify-skill?skillId=${String(skill.id)}`}
+                      className="inline-flex items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold"
+                    >
+                      Verify to skill
+                    </Link>
                   </div>
                 </button>
               ))}
@@ -457,7 +487,7 @@ export default function DashboardPage() {
 
       {user?.role === "EMPLOYER" ? <EmployerDashboard /> : null}
       {user?.role === "MENTOR" ? <MentorDashboard /> : null}
-      {user?.role === "STUDENT" ? <UserDashboard /> : null}
+      {user?.role === "STUDENT" || user?.role === "USER" ? <UserDashboard /> : null}
       {!user?.role ? (
         <section className="reveal rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 md:p-8">
           <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Role is not recognized</h1>
