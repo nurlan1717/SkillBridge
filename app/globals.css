@@ -1,26 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Calistoga&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --text: #0f0f10;
+  --muted: #5a5d63;
+  --line: #d9dce2;
+  --accent: #0f0f10;
+  --accent-text: #ffffff;
+  --bg-accent-soft: color-mix(in oklab, #0f0f10 10%, transparent);
+  --bg-accent-soft-2: color-mix(in oklab, #7c8aa0 14%, transparent);
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Calistoga', 'Inter', cursive;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --bg: #09090b;
+  --surface: #111217;
+  --text: #f6f7f9;
+  --muted: #b1b7c0;
+  --line: #252933;
+  --accent: #f6f7f9;
+  --accent-text: #0a0b0f;
+  --bg-accent-soft: color-mix(in oklab, #e8ebf1 8%, transparent);
+  --bg-accent-soft-2: color-mix(in oklab, #4f5f73 20%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme]) {
+    --bg: #09090b;
+    --surface: #111217;
+    --text: #f6f7f9;
+    --muted: #b1b7c0;
+    --line: #252933;
+    --accent: #f6f7f9;
+    --accent-text: #0a0b0f;
+    --bg-accent-soft: color-mix(in oklab, #e8ebf1 8%, transparent);
+    --bg-accent-soft-2: color-mix(in oklab, #4f5f73 20%, transparent);
   }
 }
 
+@theme inline {
+  --font-sans: var(--font-manrope);
+  --font-heading: var(--font-syne);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+* {
+  border-color: var(--line);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans), var(--font-manrope), sans-serif;
+  transition:
+    background-color 300ms ease,
+    color 300ms ease;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-syne), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes floatY {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSoft {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: fadeUp 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.delay-1 {
+  animation-delay: 90ms;
+}
+
+.delay-2 {
+  animation-delay: 180ms;
+}
+
+.delay-3 {
+  animation-delay: 270ms;
+}
+
+.float-soft {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.pulse-soft {
+  animation: pulseSoft 4s ease-in-out infinite;
 }
