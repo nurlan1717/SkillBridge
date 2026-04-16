@@ -109,11 +109,11 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
                 <MapPin className="h-4 w-4 text-[var(--accent)]" />
-                <span>San Francisco, CA 94105</span>
+                <span>Bakı Ayna Sultanova</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
                 <Phone className="h-4 w-4 text-[var(--accent)]" />
-                <span>+1 (555) 123-4567</span>
+                <span>+994 (55) 899-17-44</span>
               </div>
             </div>
 

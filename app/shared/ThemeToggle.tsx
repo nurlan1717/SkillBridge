@@ -37,12 +37,15 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="h-9 w-9 rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--text)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_0_3px_color-mix(in_oklab,var(--accent)_18%,transparent)] md:h-10 md:w-10"
+      className="h-9 w-9 rounded-full cursor-pointer border border-[var(--line)] bg-[var(--surface)] text-[var(--text)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_0_3px_color-mix(in_oklab,var(--accent)_18%,transparent)] md:h-10 md:w-10"
       aria-label="Toggle theme"
       title={theme === "dark" ? "Light mode" : "Dark mode"}
       type="button"
+      suppressHydrationWarning
     >
-      <span className="text-sm md:text-base">{theme === "dark" ? "☀" : "☾"}</span>
+      <span className="text-sm md:text-base" suppressHydrationWarning>
+        {theme === "dark" ? "☀" : "☾"}
+      </span>
     </button>
   );
 }

@@ -1,5 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { authService } from "@/lib/api/services/auth.service";
+import { useAuth } from "@/app/providers/AuthProvider";
+import {
+  extractTokens,
+  decodeJwt,
+  getAccessTokenFromCookie,
+} from "@/lib/auth/session";
 
 const valuePoints = [
   "Verified skill wallet",
@@ -8,6 +19,45 @@ const valuePoints = [
 ];
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { setFromToken } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (getAccessTokenFromCookie()) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const payload = await authService.login({ email, password });
+      const { token } = extractTokens(payload);
+
+      if (!token) {
+        throw new Error("Token not found in login response");
+      }
+
+      setFromToken(token);
+      const roleClaim = decodeJwt(token)?.role?.toUpperCase();
+      const isAdmin = roleClaim === "ADMIN" || roleClaim === "ROLE_ADMIN";
+      router.push(isAdmin ? "/admin" : "/dashboard");
+      router.refresh();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Login failed";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="mx-auto grid min-h-[calc(100vh-130px)] w-full max-w-6xl items-center gap-8 px-5 py-8 md:grid-cols-[1fr_1fr] md:px-8 md:py-12">
       <section className="reveal space-y-5 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_24px_60px_-36px_color-mix(in_oklab,var(--text)_65%,transparent)] md:p-8">
@@ -85,7 +135,7 @@ export default function LoginPage() {
           <span className="h-px flex-1 bg-[var(--line)]" />
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-sm text-[var(--muted)]" htmlFor="email">
               Email
@@ -94,6 +144,9 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
               className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-4 py-3 outline-none transition duration-300 focus:-translate-y-0.5 focus:border-[var(--accent)]"
             />
           </div>
@@ -106,9 +159,18 @@ export default function LoginPage() {
               id="password"
               type="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
               className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-4 py-3 outline-none transition duration-300 focus:-translate-y-0.5 focus:border-[var(--accent)]"
             />
           </div>
+
+          {error ? (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-600">
+              {error}
+            </div>
+          ) : null}
 
           <div className="flex items-center justify-between text-sm">
             <label className="inline-flex items-center gap-2 text-[var(--muted)]">
@@ -124,10 +186,11 @@ export default function LoginPage() {
           </div>
 
           <button
-            type="button"
+            type="submit"
+            disabled={isLoading}
             className="w-full rounded-xl bg-[var(--accent)] px-4 py-3 font-semibold text-[var(--accent-text)] transition duration-300 hover:-translate-y-0.5 hover:brightness-110"
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 

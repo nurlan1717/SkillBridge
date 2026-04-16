@@ -3,13 +3,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/app/shared/ThemeToggle";
-import { Menu, X, Sparkles, ChevronDown } from "lucide-react";
+import { Menu, X, Sparkles, ChevronDown, UserCircle2, LogOut, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/login", label: "Login" },
   { href: "/register", label: "Register" },
+];
+
+const authLinks = [
+  { href: "/", label: "Home" },
+  { href: "/dashboard", label: "Dashboard" },
 ];
 
 const dropdownLinks = [
@@ -20,9 +27,12 @@ const dropdownLinks = [
 ];
 
 export function Navbar() {
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +41,24 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  function handleLogout() {
+    logout();
+    setIsProfileOpen(false);
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    router.push("/");
+    router.refresh();
+  }
+
+  const navLinks = isAuthenticated
+    ? user?.role === "ADMIN"
+      ? [
+          { href: "/", label: "Home" },
+          { href: "/admin", label: "Admin Panel" },
+        ]
+      : authLinks
+    : links;
 
   return (
     <>
@@ -67,7 +95,7 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-3 md:flex">
             <nav className="flex items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
-              {links.map((item) => (
+              {navLinks.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -104,6 +132,49 @@ export function Navbar() {
                 )}
               </div>
             </nav>
+            {isAuthenticated ? (
+              <div className="relative hidden lg:block">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-xs text-[var(--muted)] transition hover:border-[var(--accent)]/40 hover:text-[var(--text)]"
+                >
+                  <UserCircle2 className="h-4 w-4" />
+                  <span className="max-w-[180px] truncate">{user?.email ?? "profile"}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {isProfileOpen ? (
+                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl backdrop-blur-md">
+                    <p className="truncate px-2 py-1 text-xs text-[var(--muted)]">{user?.email ?? "profile"}</p>
+                    <Link
+                      href={user?.role === "ADMIN" ? "/admin" : "/dashboard"}
+                      onClick={() => setIsProfileOpen(false)}
+                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                    >
+                      <Briefcase className="h-4 w-4" />
+                      {user?.role === "ADMIN" ? "Admin panel" : "Dashboard"}
+                    </Link>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                    >
+                      <UserCircle2 className="h-4 w-4" />
+                      My profile
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             <ThemeToggle />
           </div>
 
@@ -132,7 +203,7 @@ export function Navbar() {
         style={{ top: "64px" }}
       >
         <div className="flex flex-col items-center justify-center space-y-6 p-8 pt-12">
-          {[...links, ...dropdownLinks].map((item, idx) => (
+          {[...navLinks, ...dropdownLinks].map((item, idx) => (
             <Link
               key={item.href}
               href={item.href}
@@ -143,6 +214,16 @@ export function Navbar() {
               {item.label}
             </Link>
           ))}
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="animate-fade-in-up rounded-full border border-[var(--line)] px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:text-[var(--text)]"
+              style={{ animationDelay: `${(navLinks.length + dropdownLinks.length) * 50}ms` }}
+            >
+              Logout ({user?.email ?? "profile"})
+            </button>
+          ) : null}
           <div className="animate-fade-in-up pt-6" style={{ animationDelay: "300ms" }}>
             <ThemeToggle />
           </div>

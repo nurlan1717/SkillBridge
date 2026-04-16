@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Syne, JetBrains_Mono } from "next/font/google";
+import { AuthProvider } from "@/app/providers/AuthProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -35,13 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-[var(--bg)] text-[var(--text)]">
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{var t=localStorage.getItem('skillbridge-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t==='dark'||t==='light'?t:d);}catch(e){}})();",
-          }}
-        />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
