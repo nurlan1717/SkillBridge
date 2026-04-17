@@ -12,6 +12,7 @@ import {
   getAccessTokenFromCookie,
 } from "@/lib/auth/session";
 import type { RegisterRole } from "@/lib/api/types";
+import toast from "react-hot-toast";
 
 const roleContent: Record<
   RegisterRole,
@@ -104,6 +105,7 @@ export default function RegisterPage() {
       }
 
       setFromToken(token);
+      toast.success("Account created successfully!");
       const roleClaim = decodeJwt(token)?.role?.toUpperCase();
       const isAdmin = roleClaim === "ADMIN" || roleClaim === "ROLE_ADMIN";
       router.push(isAdmin ? "/admin" : "/dashboard");
@@ -111,6 +113,7 @@ export default function RegisterPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Register failed";
       setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

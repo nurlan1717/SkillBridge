@@ -18,6 +18,94 @@ import {
 import { useAuth } from "@/app/providers/AuthProvider";
 import { getUserIdFromToken } from "@/lib/auth/session";
 import { usersService, type DirectoryUserSkill, type DirectoryUserRole, type ProfileUser } from "@/lib/api/services/users.service";
+import { submissionsService } from "@/lib/api/services/submissions.service";
+import type { Submission } from "@/lib/api/types";
+
+function ProfileSubmissions({ userId }: { userId: string | null }) {
+  const { user } = useAuth();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchSubmissions() {
+      if (!userId || userId === "N/A" || !user?.token) return;
+      setIsLoading(true);
+      try {
+        const data = await submissionsService.byUser(user.token, userId);
+        if (isMounted) setSubmissions(data || []);
+      } catch (err) {
+        console.error("Failed to load submissions", err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+    void fetchSubmissions();
+    return () => { isMounted = false; };
+  }, [userId, user?.token]);
+
+  if (!userId || userId === "N/A") return null;
+
+  return (
+    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)]/80 backdrop-blur-xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      <h2 className="font-display text-2xl font-bold">Past Submissions & Feedback</h2>
+      <p className="mt-1 text-sm text-[var(--muted)]">View your completed tasks, AI evaluations, and mentor scores.</p>
+      
+      {isLoading ? (
+         <div className="mt-4"><LoaderCircle className="h-4 w-4 animate-spin text-[var(--accent)]" /></div>
+      ) : submissions.length === 0 ? (
+         <p className="mt-4 text-sm text-[var(--muted)]">No submissions found yet. Go to Verify Skill to practice.</p>
+      ) : (
+         <div className="mt-6 space-y-4">
+           {submissions.map(sub => (
+              <div key={String(sub.id)} className="rounded-2xl border border-[var(--line)] bg-[var(--bg)] p-5 shadow-sm hover:border-[var(--accent)] transition">
+                 <div className="flex flex-wrap gap-4 justify-between items-start">
+                   <div>
+                     <h3 className="font-display text-lg font-bold">{sub.taskTitle || `Task #${sub.taskId}`}</h3>
+                     <div className="flex gap-2 items-center mt-2">
+                       <span className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full border ${sub.status === 'PENDING' ? 'border-amber-500/20 bg-amber-500/10 text-amber-600' : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600'}`}>
+                         {sub.status}
+                       </span>
+                       <span className="text-xs text-[var(--muted)]">
+                         {new Date(sub.submittedAt || Date.now()).toLocaleDateString()}
+                       </span>
+                     </div>
+                   </div>
+                   {sub.score !== undefined && sub.score !== null && sub.score > 0 && (
+                     <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white font-bold px-4 py-1.5 rounded-xl shadow-lg border border-emerald-500 text-sm flex items-center gap-1.5">
+                       <BadgeCheck className="h-4 w-4" />
+                       Score: {sub.score}
+                     </div>
+                   )}
+                 </div>
+                 
+                 {sub.feedback && (
+                   <div className="mt-4 bg-purple-500/5 border border-purple-500/10 rounded-xl p-4 text-sm text-[var(--text)] leading-relaxed">
+                     <span className="font-semibold text-purple-600 mb-1 flex items-center gap-1">
+                       <Sparkles className="h-3.5 w-3.5" /> Feedback:
+                     </span>
+                     {sub.feedback}
+                   </div>
+                 )}
+                 
+                 <div className="mt-4">
+                   <details className="group">
+                     <summary className="text-xs cursor-pointer text-[var(--muted)] hover:text-[var(--text)] font-semibold select-none list-none inline-flex items-center gap-1">
+                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90 text-[var(--accent)]" />
+                       View Submitted Code
+                     </summary>
+                     <div className="mt-3 text-xs font-mono bg-black/5 dark:bg-white/5 text-[var(--text)] p-4 rounded-xl overflow-x-auto border border-[var(--line)] whitespace-pre-wrap max-h-64 overflow-y-auto">
+                       {sub.answer || "No answer text"}
+                     </div>
+                   </details>
+                 </div>
+              </div>
+           ))}
+         </div>
+      )}
+    </div>
+  );
+}
 
 type RoleProfileConfig = {
   title: string;
@@ -353,6 +441,12 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+        </section>
+      ) : null}
+
+      {(resolvedRole === "STUDENT" || resolvedRole === "USER") ? (
+        <section className="reveal delay-[600ms] mt-8">
+          <ProfileSubmissions userId={getUserIdFromToken(user?.token ?? "")} />
         </section>
       ) : null}
 

@@ -1,3 +1,5 @@
+import { getAccessTokenFromCookie } from "@/lib/auth/session";
+
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 interface RequestOptions {
@@ -25,7 +27,10 @@ function toAbsoluteUrl(path: string): string {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = "GET", body, token } = options;
+  const { method = "GET", body } = options;
+  
+  // Try to use the provided token, fallback to cookie if running in browser
+  const token = options.token || (typeof window !== "undefined" ? getAccessTokenFromCookie() : null);
 
   const response = await fetch(toAbsoluteUrl(path), {
     method,

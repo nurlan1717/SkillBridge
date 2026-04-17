@@ -26,7 +26,7 @@ export const endpoints = {
     skillWallet: `${API_PREFIX}/assessments/me/skill-wallet`,
   },
   roadmap: {
-    generate: "/api/roadmap",
+    generate: `${API_PREFIX}/roadmap`,
   },
   tasks: {
     bySkill: (skillId: string) => `${API_PREFIX}/tasks/skill/${skillId}`,
@@ -37,9 +37,11 @@ export const endpoints = {
   },
   submissions: {
     create: `${API_PREFIX}/submissions`,
-    aiReview: (id: string) => `${API_PREFIX}/submissions/${id}/ai-review`,
+    aiReview: (userId: string) => `${API_PREFIX}/submissions/user/${userId}/ai-review`,
     mentorReview: (id: string) => `${API_PREFIX}/submissions/${id}/mentor-review`,
     mine: `${API_PREFIX}/submissions/me`,
+    byUser: (userId: string) => `${API_PREFIX}/submissions/user/${userId}`,
+    activateSkills: (userId: string) => `${API_PREFIX}/submissions/user/${userId}/activate-skills`,
     pending: `${API_PREFIX}/submissions/pending`,
     byId: (id: string) => `${API_PREFIX}/submissions/${id}`,
   },

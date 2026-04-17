@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Syne, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/app/providers/AuthProvider";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -36,7 +37,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-[var(--bg)] text-[var(--text)]">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <Toaster position="top-center" />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

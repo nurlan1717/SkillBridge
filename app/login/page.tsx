@@ -11,6 +11,7 @@ import {
   decodeJwt,
   getAccessTokenFromCookie,
 } from "@/lib/auth/session";
+import toast from "react-hot-toast";
 
 const valuePoints = [
   "Verified skill wallet",
@@ -46,6 +47,7 @@ export default function LoginPage() {
       }
 
       setFromToken(token);
+      toast.success("Welcome back!");
       const roleClaim = decodeJwt(token)?.role?.toUpperCase();
       const isAdmin = roleClaim === "ADMIN" || roleClaim === "ROLE_ADMIN";
       router.push(isAdmin ? "/admin" : "/dashboard");
@@ -53,6 +55,7 @@ export default function LoginPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

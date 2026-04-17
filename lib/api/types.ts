@@ -57,20 +57,30 @@ export interface Task {
   isAiGenerated: boolean;
 }
 
-export interface Submission {
+export interface GeneratedTask {
   id: UUID;
-  userId: UUID;
-  taskId: UUID;
-  solutionText: string;
-  solutionFileUrl?: string | null;
-  status: SubmissionStatus;
-  aiScore?: number | null;
-  aiFeedback?: string | null;
-  mentorId?: UUID | null;
-  mentorFeedback?: string | null;
-  finalScore?: number | null;
+  skillId: UUID;
+  skillTitle: string;
+  title: string;
+  description: string;
+  expectedOutput: string;
+  difficulty: Level;
+  durationMinutes: number;
+  aiGenerated: boolean;
+}
+
+export interface Submission {
+  id: number | string;
+  taskId: number | string;
+  taskTitle?: string;
+  userId: number | string;
+  userName?: string;
+  answer: string;
+  feedback?: string | null;
+  score?: number | null;
+  status: string;
   submittedAt: string;
-  reviewedAt?: string | null;
+  evaluatedAt?: string | null;
 }
 
 export interface Certificate {
@@ -160,14 +170,18 @@ export interface AnalyzeResponse {
 }
 
 export interface SubmissionCreateRequest {
-  taskId: UUID;
-  solutionText: string;
-  solutionFileUrl?: string;
+  taskId: UUID | number;
+  userId: UUID | number;
+  answer: string;
+  feedback?: string;
+  score?: number;
+  status?: string;
 }
 
 export interface MentorReviewRequest {
-  mentorFeedback: string;
-  finalScore: number;
+  id: number | string;
+  feedback: string;
+  score: number;
 }
 
 export interface JobCreateRequest {

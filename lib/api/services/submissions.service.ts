@@ -14,14 +14,28 @@ export const submissionsService = {
       body: payload,
     }),
 
-  aiReview: (token: string, id: string) =>
-    apiRequest<Submission>(endpoints.submissions.aiReview(id), { method: "POST", token }),
+  aiReview: (token: string, userId: string) =>
+    apiRequest<Submission>(endpoints.submissions.aiReview(userId), { method: "POST", token }),
 
-  mentorReview: (token: string, id: string, payload: MentorReviewRequest) =>
-    apiRequest<Submission>(endpoints.submissions.mentorReview(id), {
+  mentorReview: (token: string, id: string, payload: MentorReviewRequest) => {
+    const params = new URLSearchParams({
+      id: String(payload.id),
+      feedback: payload.feedback,
+      score: String(payload.score),
+    });
+    return apiRequest<Submission>(`${endpoints.submissions.mentorReview(id)}?${params.toString()}`, {
       method: "POST",
       token,
-      body: payload,
+    });
+  },
+
+  byUser: (token: string, userId: string) =>
+    apiRequest<Submission[]>(endpoints.submissions.byUser(userId), { token }),
+
+  activateSkills: (token: string, userId: string) =>
+    apiRequest<void>(endpoints.submissions.activateSkills(userId), {
+      method: "POST",
+      token,
     }),
 
   mine: (token: string) => apiRequest<Submission[]>(endpoints.submissions.mine, { token }),

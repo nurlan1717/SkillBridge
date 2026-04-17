@@ -1,6 +1,6 @@
 import { endpoints } from "@/lib/api/endpoints";
 import { apiRequest } from "@/lib/api/http";
-import type { Level, Task } from "@/lib/api/types";
+import type { GeneratedTask, Task } from "@/lib/api/types";
 
 export const tasksService = {
   bySkill: (token: string, skillId: string) =>
@@ -8,11 +8,10 @@ export const tasksService = {
 
   byId: (token: string, id: string) => apiRequest<Task>(endpoints.tasks.byId(id), { token }),
 
-  generate: (token: string, skillId: string, level: Level) =>
-    apiRequest<Task>(endpoints.tasks.generate(skillId), {
+  generate: (token: string, skillId: string) =>
+    apiRequest<GeneratedTask[]>(endpoints.tasks.generate(skillId), {
       method: "POST",
       token,
-      body: { level },
     }),
 
   create: (token: string, payload: Omit<Task, "id">) =>
